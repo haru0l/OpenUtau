@@ -436,8 +436,11 @@ namespace OpenUtau.Core.Render {
             pitchesBeforeDeviation = pitches.ToArray();
             var pitchCurve = source.Curves.FirstOrDefault(c => c.Abbr == Format.Ustx.PITD);
             if (pitchCurve != null && !pitchCurve.IsEmpty) {
-                for (int i = 0; i < pitches.Length; ++i) {
-                    pitches[i] += pitchCurve.Sample(pitchStart + i * pitchInterval);
+                var pitdSampled = pitchCurve.Samples(pitchStart, pitches.Length, pitchInterval);
+                int i = 0;
+                foreach (int p in pitdSampled) {
+                    pitches[i] += p;
+                    i++;
                 }
             }
 
@@ -549,10 +552,9 @@ namespace OpenUtau.Core.Render {
 
         private static float[] SampleCurve(Pipeline.CurveSource curve, int start, int length, Func<float, Pipeline.CurveSource, float> convert) {
             const int interval = 5;
-            var result = new float[length];
-            for (int i = 0; i < length; ++i) {
-                result[i] = convert(curve.Sample(start + i * interval), curve);
-            }
+            var result = curve.Samples(start, length, interval)
+                .Select(v => convert(v, curve))
+                .ToArray();
             return result;
         }
 
