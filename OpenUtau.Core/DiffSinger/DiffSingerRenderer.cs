@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -29,6 +29,7 @@ namespace OpenUtau.Core.DiffSinger {
             Format.Ustx.GENC,
             Format.Ustx.CLR,
             Format.Ustx.BREC,
+			Format.Ustx.TENC,
             VELC,
             ENE,
             PEXP,
@@ -220,9 +221,9 @@ namespace OpenUtau.Core.DiffSinger {
                 acousticInputs.Add(NamedOnnxValue.CreateFromTensor("velocity", velocityTensor));
             }
 
-            //Variance: Energy and Breathiness
+            //Variance: Energy and Breathiness and Tension
             
-            if(singer.dsConfig.useBreathinessEmbed || singer.dsConfig.useEnergyEmbed){
+            if(singer.dsConfig.useBreathinessEmbed || singer.dsConfig.useEnergyEmbed || singer.dsConfig.useTensionEmbed){
                 var variancePredictor = singer.getVariancePredictor();
                 VarianceResult varianceResult;
                 lock(variancePredictor){
@@ -255,6 +256,15 @@ namespace OpenUtau.Core.DiffSinger {
                     acousticInputs.Add(NamedOnnxValue.CreateFromTensor("breathiness", 
                         new DenseTensor<float>(breathiness, new int[] { breathiness.Length })
                         .Reshape(new int[] { 1, breathiness.Length })));
+                }
+				if(singer.dsConfig.useTensionEmbed){
+                    var userTension = DiffSingerUtils.SampleCurve(phrase, phrase.tension,
+                        0, frameMs, totalFrames, headFrames, tailFrames,
+                        x => x);
+                    var tension = varianceResult.tension.Zip(userTension, (x,y)=>(float)Math.Min(x + y*12/100, 0)).ToArray();
+                    acousticInputs.Add(NamedOnnxValue.CreateFromTensor("tension",
+                        new DenseTensor<float>(tension, new int[] { tension.Length })
+                        .Reshape(new int[] { 1, tension.Length })));
                 }
             }
             Tensor<float> mel;
