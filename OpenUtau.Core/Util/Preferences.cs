@@ -262,7 +262,7 @@ namespace OpenUtau.Core.Util {
             /// <summary>
             /// Release channel for the auto updater: "stable", "beta" or "alpha".
             /// </summary>
-            public string Channel = "stable";
+            public string Channel = "beta";
             public bool RememberMid = false;
             public bool RememberUst = true;
             public bool RememberVsqx = true;
