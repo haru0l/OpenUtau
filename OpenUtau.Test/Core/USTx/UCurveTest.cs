@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using OpenUtau.Core.Ustx;
 using Xunit;
@@ -153,21 +154,12 @@ namespace OpenUtau.Test.Core.USTx {
             AssertSameValues(before, after, 0, 800 - UCurve.interval);
         }
     }
-}
 
-// Independent suite from the fork: covers UCurve.Samples (amortised binary search fast path)
-// and UCurve.SetRange (batch point writes), which the tests above do not exercise.
-using System.Collections.Generic;
-using System.Linq;
-using Xunit;
-using Xunit.Abstractions;
-
-namespace OpenUtau.Core.Ustx {
-    public class UCurveSamplesTest {
-        readonly ITestOutputHelper output;
-        readonly UCurve curve; 
-        public UCurveSamplesTest(ITestOutputHelper output){
-            this.output = output;
+    // Ported from the fork: covers UCurve.Samples (amortised binary search fast path),
+    // which the tests above do not exercise.
+    public class UCurveSamplingTest {
+        readonly UCurve curve;
+        public UCurveSamplingTest() {
             var descriptor = new UExpressionDescriptor("testcurve", "TEST", 0, 200, 99);
             curve = new UCurve(descriptor);
             curve.xs = new List<int> { 10, 30, 60, 100 };

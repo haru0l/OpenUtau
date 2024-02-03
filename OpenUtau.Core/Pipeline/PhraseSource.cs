@@ -173,6 +173,43 @@ namespace OpenUtau.Core.Pipeline {
             }
             return DefaultY;
         }
+
+        /// <summary>
+        /// Samples the curve at xstart, xstart + interval, xstart + 2 * interval, ..., xstart + (count - 1) * interval.
+        /// This will improve performance if the sample interval isn't
+        /// much greater than the intervals between xs in the curve,
+        /// by calling BinarySearch less often.
+        /// </summary>
+        /// <param name="xstart">The x value of the first sample.</param>
+        /// <param name="count">The number of samples needed.</param>
+        /// <param name="interval">The interval between samples.</param>
+        public IEnumerable<int> Samples(int xstart, int count, int interval) {
+            if (count == 0) {
+                yield break;
+            }
+            int idx = Array.BinarySearch(Xs, xstart);
+            if (idx < 0) {
+                idx = ~idx;
+            }
+            int x = xstart;
+            for (int i = 0; i < count; i++) {
+                while (idx < Xs.Length && Xs[idx] < x) {
+                    idx++;
+                }
+                if (idx < Xs.Length && Xs[idx] == x) {
+                    yield return Ys[idx];
+                    idx++;
+                    x += interval;
+                    continue;
+                }
+                if (idx > 0 && idx < Xs.Length) {
+                    yield return (int)Math.Round(MusicMath.Linear(Xs[idx - 1], Xs[idx], Ys[idx - 1], Ys[idx], x));
+                } else {
+                    yield return DefaultY;
+                }
+                x += interval;
+            }
+        }
     }
 
     /// <summary>

@@ -341,3 +341,6 @@ appcast.*.xml
 .vscode/
 Microsoft.AI.DirectML
 tmp/
+compiled_final
+compile
+py/g2p/train.py

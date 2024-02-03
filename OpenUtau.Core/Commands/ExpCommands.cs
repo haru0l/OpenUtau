@@ -360,9 +360,7 @@ namespace OpenUtau.Core {
                 SkipPhonemizer = true,
                 SkipPhoneme = true,
             };
-        public SetCurveCommand(UProject project, UVoicePart part, string abbr, int x, int y, int lastX, int lastY) : base(part) {
-            this.project = project;
-            this.abbr = abbr;
+        public SetCurveCommand(UProject project, UVoicePart part, string abbr, int x, int y, int lastX, int lastY) : base(project, part, abbr) {
             Key = abbr;
             this.x = x;
             this.y = y;
