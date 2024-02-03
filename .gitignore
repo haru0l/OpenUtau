@@ -340,3 +340,7 @@ appcast.*.xml
 *.tar.gz
 .vscode/
 Microsoft.AI.DirectML
+compiled_final
+compile
+py/g2p/train.py
+py/g2p/train.py
